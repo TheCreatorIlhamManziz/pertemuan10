@@ -38,69 +38,42 @@ const routes = [
     path: "/dashboard",
     name: "Dashboard",
     component: Dashboard,
-<<<<<<< HEAD
-    meta: { title: "Dasboard" },
-=======
     meta: { requiresAuth: true, title: "Dashboard" },
->>>>>>> cdd08d8 (update terbaru)
     children: [
       {
         path: "",
         name: "Home",
         component: Home,
-<<<<<<< HEAD
-        meta: { title: "Home" }
-=======
         meta: { title: "Home", requiresAuth: true },
->>>>>>> cdd08d8 (update terbaru)
       },
       {
         path: "kategori",
         name: "Kategori",
         component: Kategori,
-<<<<<<< HEAD
-        meta: { title: "Kategori" }
-=======
         meta: { title: "Kategori", requiresAuth: true },
->>>>>>> cdd08d8 (update terbaru)
       },
       {
         path: "peminjaman",
         name: "Peminjaman",
         component: Peminjaman,
-<<<<<<< HEAD
-        meta: { title: "Peminjaman" }
-=======
         meta: { title: "Peminjaman", requiresAuth: true },
->>>>>>> cdd08d8 (update terbaru)
       },
       {
         path: "pengembalian",
         name: "Pengembalian",
         component: Pengembalian,
-<<<<<<< HEAD
-        meta: { title: "pengembalian" }
-=======
         meta: { title: "Pengembalian", requiresAuth: true },
->>>>>>> cdd08d8 (update terbaru)
       },
       {
         path: "denda",
         name: "Denda",
         component: Denda,
-<<<<<<< HEAD
-        meta: { title: "Denda" }
-=======
         meta: { title: "Denda", requiresAuth: true },
->>>>>>> cdd08d8 (update terbaru)
       },
       {
         path: "pengaturan",
         name: "Pengaturan",
         component: Pengaturan,
-<<<<<<< HEAD
-        meta: { title: "Pengaturan" }
-=======
         meta: { title: "Pengaturan", requiresAuth: true },
       },
       {
@@ -108,7 +81,6 @@ const routes = [
         name: "BookDetail",
         component: BookDetail,
         meta: { title: "Detail Buku", requiresAuth: true },
->>>>>>> cdd08d8 (update terbaru)
       },
     ],
   },
@@ -119,12 +91,6 @@ const router = createRouter({
   routes,
 });
 
-<<<<<<< HEAD
-router.beforeEach((to, from, next) => {
-    document.title = to.meta.title || 'Vite + Vue App'
-    next()
-  })
-=======
 // Middleware Auth Check
 router.beforeEach((to, from, next) => {
   const userStore = useUserStore();
@@ -144,6 +110,4 @@ router.beforeEach((to, from, next) => {
   }
 });
 
->>>>>>> cdd08d8 (update terbaru)
 export default router;
-
