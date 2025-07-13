@@ -1,138 +1,132 @@
 <template>
-    <div class="login-container">
-      <div class="login-box">
-        <h2>Register Mahasiswa</h2>
-        <div class="form-group">
-          <label for="nama">Nama</label>
-          <input type="text" id="nama" v-model="nama" />
-        </div>
-        <div class="form-group">
-          <label for="npm">NPM</label>
-          <input type="text" id="npm" v-model="npm" />
-        </div>
-        <div class="form-group">
-          <label for="password">Password</label>
-          <input type="password" id="password" v-model="password" />
-        </div>
-        <div v-if="error" style="color: red; margin-bottom: 10px;">{{ error }}</div>
-        <button @click="register">Register</button>
-        <div class="link">
-          Sudah punya akun? <router-link to="/login">Login</router-link>
-        </div>
-      </div>
-    </div>
-  </template>
-  
-  <script setup>
-  import { ref } from 'vue'
-  import { useRouter } from 'vue-router'
-  
-  const nama = ref('')
-  const npm = ref('')
-  const password = ref('')
-  const error = ref('')
-  const router = useRouter()
-  
-  const register = () => {
-    if (!nama.value || !npm.value || !password.value) {
-      error.value = 'Semua kolom harus diisi'
-      return
-    }
-  
-    const user = { nama: nama.value, npm: npm.value, password: password.value }
-    let users = JSON.parse(localStorage.getItem('users')) || []
-  
-    const duplicate = users.find(u => u.npm === npm.value)
-    if (duplicate) {
-      error.value = 'NPM sudah terdaftar!'
-      return
-    }
-  
-    users.push(user)
-    localStorage.setItem('users', JSON.stringify(users))
-  
-    alert('Registrasi berhasil! Silakan login.')
+  <div class="auth-container">
+    <h2>Register</h2>
+    <form @submit.prevent="handleRegister" class="auth-form">
+      <input v-model="name" type="text" placeholder="Nama Lengkap" required />
+      <input v-model="email" type="email" placeholder="Email" required />
+      <input v-model="password" type="password" placeholder="Password" required />
+      <button type="submit">Daftar</button>
+    </form>
+    <p>Sudah punya akun? <RouterLink class="link" to="/login">Login di sini</RouterLink></p>
+  </div>
+</template>
+
+<script setup>
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { auth } from '@/firebase'
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth'
+import { useUserStore } from '@/stores/user'
+
+const name = ref('')
+const email = ref('')
+const password = ref('')
+const router = useRouter()
+const userStore = useUserStore()
+
+onMounted(() => {
+  userStore.loadUser()
+  if (userStore.user) {
+    router.push('/dashboard')
+  }
+})
+
+const handleRegister = async () => {
+  try {
+    const userCredential = await createUserWithEmailAndPassword(auth, email.value, password.value)
+    const user = userCredential.user
+    await updateProfile(user, { displayName: name.value }) // simpan nama ke profil firebase
+    alert('Registrasi berhasil!')
     router.push('/login')
+  } catch (error) {
+    if (error.code === 'auth/email-already-in-use') {
+      alert('Email sudah digunakan. Silakan login.')
+    } else {
+      alert('Gagal registrasi: ' + error.message)
+    }
   }
-  </script>
-  
-  <style scoped>
-  /* GUNAKAN CSS YANG SAMA seperti sebelumnya */
-  .login-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    background-color: #ecf0f3;
-  }
-  
-  .login-box {
-    background-color: #ffffff;
-    padding: 40px;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 400px;
-    text-align: center;
-  }
-  
-  h2 {
-    margin-bottom: 24px;
-    font-size: 24px;
-    color: #2c3e50;
-  }
-  
-  .form-group {
-    margin-bottom: 20px;
-    text-align: left;
-  }
-  
-  label {
-    display: block;
-    margin-bottom: 6px;
-    font-weight: 600;
-    color: #34495e;
-  }
-  
-  input {
-    width: 100%;
-    padding: 10px 14px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    outline: none;
-    font-size: 14px;
-    transition: 0.3s;
-  }
-  
-  input:focus {
-    border-color: #2980b9;
-  }
-  
-  button {
-    width: 100%;
-    padding: 12px;
-    background-color: #2980b9;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: background 0.3s;
-  }
-  
-  button:hover {
-    background-color: #1c5980;
-  }
-  
-  .link {
-    margin-top: 16px;
-    font-size: 14px;
-  }
-  
-  .link a {
-    color: #2980b9;
-    text-decoration: none;
-    font-weight: bold;
-  }
-  </style>
-  
+}
+</script>
+
+
+<style scoped>
+.auth-container {
+  max-width: 420px;
+  margin: 100px auto;
+  background-color: #3a2e25; /* Warna kayu klasik */
+  padding: 40px 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  font-family: 'Georgia', serif;
+  color: #f0e6d2;
+  text-align: center;
+}
+
+.auth-form input {
+  background: #5b4636;
+  border: 1px solid #a9825a;
+  color: #f0e6d2;
+  padding: 12px;
+  border-radius: 5px;
+  font-size: 1em;
+}
+
+.auth-container h2 {
+  margin-bottom: 20px;
+  font-size: 28px;
+  color: #f5deb3; /* Krem tua */
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.auth-form input {
+  background: #5b4636;
+  border: 1px solid #a9825a;
+  color: #f0e6d2;
+  padding: 12px;
+  border-radius: 5px;
+  font-size: 1em;
+  font-family: 'Georgia', serif;
+}
+
+.auth-form input::placeholder {
+  color: #cdbba7;
+}
+
+.auth-form button {
+  background-color: #a9825a;
+  color: #fff;
+  font-weight: bold;
+  padding: 12px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background-color 0.2s ease;
+}
+
+.auth-form button:hover {
+  background-color: #b89266;
+}
+
+.link {
+  color: #ffdd99;
+  cursor: pointer;
+  text-decoration: underline;
+  font-size: 0.95em;
+  font-style: italic;
+}
+
+.link:hover {
+  color: #ffe6b3;
+}
+
+body {
+  background-color: #2b1d15; /* Background halaman */
+}
+</style>
